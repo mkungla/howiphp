@@ -1,29 +1,37 @@
-# Compiled Object files
+/autom4te.cache/
+/config/*
+!/config/.dirstamp
+/build/*
+!/build/.dirstamp
+/m4/*
+!/m4/.dirstamp
+
+*~
+*.o
+.cproject
+.project
+Makefile.in
+aclocal.m4
+config.h
+config.h.in
+config.log
+config.status
+configure
+configure.scan
+
+# for other platforms
 *.slo
 *.lo
-*.o
 *.obj
-
-# Precompiled Headers
+*.cache
 *.gch
 *.pch
-
-# Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
 *.mod
 *.smod
-
-# Compiled Static libraries
 *.lai
 *.la
 *.a
 *.lib
-
-# Executables
-*.exe
-*.out
-*.app
