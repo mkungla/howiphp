@@ -1,0 +1,4 @@
+[submodule "vendor/jsoncpp"]
+	path = vendor/jsoncpp
+	url = git@github.com:open-source-parsers/jsoncpp.git
+	branch = master
