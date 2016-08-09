@@ -171,6 +171,16 @@ int main(int argc, char *argv[])
 
 				config.init(flag_colors);
 				output.version();
+
+				/// If we want to list versions available
+				/// then update tags and releases
+				if(!flag_list_installed)
+				{
+					Check check;
+					check.rsync_releases();
+					check.gittags();
+				}
+
 				List list;
 				list.listAll(flag_list_installed, flag_list_available,
 						flag_list_releases);
