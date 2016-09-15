@@ -41,7 +41,7 @@ public:
 
 	void buildconf();
 
-	void configure();
+	void configure(string = "default");
 
 	void remove(string);
 
@@ -65,7 +65,7 @@ public:
 
 	void run_buildconf();
 
-	void run_configure();
+	void run_configure(string);
 
 	void make();
 

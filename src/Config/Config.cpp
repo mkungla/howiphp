@@ -28,8 +28,6 @@ long int Config::startup_time;
 Json::Value Config::conf_storage;
 Config::Config()
 {
-	// TODO Auto-generated constructor stub
-
 }
 void Config::set_startup_time()
 {
@@ -53,7 +51,7 @@ void Config::init(int colored, bool run_config)
 	struct passwd *pw = getpwuid(getuid());
 	char homedir[100];
 	strcpy(homedir, pw->pw_dir);
-	strcat(homedir, "/HOWI3/etc/libhowi/php.json");
+	strcat(homedir, "/.howiphp/etc/howiphp.json");
 
 	/* Load Configuration */
 	std::ifstream config_doc(homedir, std::ifstream::binary);
@@ -68,14 +66,13 @@ void Config::init(int colored, bool run_config)
 	if (!parsingSuccessful)
 	{
 		output.version();
-		output.info("libhowi-php is not configured!", true);
-		output.banner(
-				"You can follow the interactive configuration to setup everything.");
+		output.info("howiphp is not configured!", true);
+		output.banner("You can follow the interactive configuration to setup everything\n or copy you existing config to ~/.howiphp/etc/howiphp.json");
 		char type = '\0';
 		do
 		{
 
-			output.question("Would you like to perform configuration? [y/n]");
+			output.question("So would you like to perform fresh configuration? [y/n]");
 			cin >> type;
 		} while (type != 'y' && type != 'n');
 
@@ -114,15 +111,15 @@ void Config::configuration()
 
 	/* paths */
 	Json::Value libpaths;
-	path lib_path = path(pw->pw_dir).append("HOWI3");
-	path bin_path = path(pw->pw_dir).append("HOWI3/bin");
+	path lib_path = path(pw->pw_dir).append(".howiphp");
+	path bin_path = path(pw->pw_dir).append(".howiphp/bin");
 
 	path lib_bin_path = path(lib_path.string()).append("bin");
 	path lib_etc_path = path(lib_path.string()).append("etc");
 	path lib_sbin_path = path(lib_path.string()).append("sbin");
 	path lib_php_path = path(lib_path.string()).append("php");
 	path lib_tmp_path = path(lib_path.string()).append("tmp");
-	path conf_file = path(lib_path.string()).append("etc/libhowi/php.json");
+	path conf_file = path(lib_path.string()).append("etc/howiphp.json");
 
 	libpaths["lib_path"] = lib_path.string();
 	libpaths["bin_path"] = bin_path.string();
@@ -148,16 +145,11 @@ void Config::configuration()
 		if (create_ws_dir)
 		{
 			boost::filesystem::create_directories(lib_bin_path.string());
-
-			boost::filesystem::create_directories(lib_etc_path.string());
-			lib_etc_path.append("libhowi");
-			libpaths["lib_etc_libhowi"] = lib_etc_path.string();
-			boost::filesystem::create_directories(lib_etc_path.string());
-			lib_etc_path.append("php");
 			boost::filesystem::create_directories(lib_etc_path.string());
 			boost::filesystem::create_directories(lib_sbin_path.string());
 
 			boost::filesystem::create_directories(lib_php_path.string());
+			// TODO Add xdebug
 			boost::filesystem::create_directories(
 					lib_php_path.string() + "/git-src");
 			boost::filesystem::create_directories(
@@ -169,19 +161,18 @@ void Config::configuration()
 
 			boost::filesystem::create_directories(
 					libpaths["php_extensions"].asString());
-			output.ok("Created workspace directories (~/HOWI3)");
+			output.ok("Created workspace directories (~/.howiphp)");
 		}
 		else
 		{
 			output.error("Failed to create workspace directories!");
-			output.banner(
-					"For some reason you are not allowed to create a directory (~/HOWI3/php).");
+			output.banner("For some reason you are not allowed to create a directory (~/.howiphp/php).");
 		}
 	}
 	else
 	{
 		/* Thats all we care about (All other scripts should of cource make own chacks! ) */
-		output.ok("libhowi-php installation paths are already there!");
+		output.ok("howiphp installation paths are already there!");
 
 	}
 
@@ -216,8 +207,6 @@ void Config::post_configuration(bool skip_pre_conf)
 		output.resetCounters();
 	}
 
-	/* USER */
-	//struct passwd *pw = getpwuid(getuid());
 	/* Time */
 	time_t now = time(0);
 	string setup_date = ctime(&now);
@@ -257,11 +246,20 @@ void Config::post_configuration(bool skip_pre_conf)
 		phpbuilder.configure();
 	else
 	{
-
+	    // List current flags
+        int i = 1;
+		output.banner("Current flags of ./configure \\");
+		for (Json::ValueConstIterator itr =
+				config.conf_storage["php"]["configure"]["default"].begin();
+				itr != config.conf_storage["php"]["configure"]["default"].end(); itr++)
+		{
+			output.banner((*itr).asString() + " \\");
+			i++;
+		}
 		char type = '\0';
 		do
 		{
-			output.question("Configure php ./configure flags? [y/n]");
+			output.question("Do you want to change default php ./configure flags? [y/n]");
 			cin >> type;
 		} while (type != 'y' && type != 'n');
 
@@ -299,51 +297,6 @@ void Config::post_configuration(bool skip_pre_conf)
 
 	check.gittags();
 
-	char buff[PATH_MAX];
-	string selfpath;
-	ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff) - 1);
-	if (len != -1)
-	{
-		buff[len] = '\0';
-		selfpath = string(buff);
-	}
-	path newbin =
-			path(config.conf_storage["paths"]["bin_path"].asString()).append(
-					"howiphp");
-	/**
-	 * selfpath == "/usr/bin/howiphp"
-	 * would check if libhowi-php was installed trough os package manager
-	 * so we dont need to make dummy copy of the executable
-	 */
-	if ((selfpath != newbin.string() && selfpath != "/usr/bin/howiphp")
-			|| selfpath != "/usr/bin/howiphp")
-	{
-		char type = '\0';
-		do
-		{
-			output.question(
-					"Add executable to ~/HOWI3/bin so that you don't need current executable anymore [y/n]");
-			cin >> type;
-		} while (type != 'y' && type != 'n');
-
-		if (type == 'y' || type == 'Y')
-		{
-			if (!exists(config.conf_storage["paths"]["bin_path"].asString()))
-				boost::filesystem::create_directories(
-						config.conf_storage["paths"]["bin_path"].asString());
-
-			if (exists(newbin.string()))
-				boost::filesystem::remove(newbin);
-
-			boost::filesystem::copy_file(path(selfpath), newbin);
-			output.ok("You can now execute libhowi-php as (howiphp) ");
-		}
-	}
-	else
-	{
-		output.ok("Already executing howiphp executable!");
-	}
-
 	output.ok("Configuration done!", true);
 	output.close();
 	exit(1);
@@ -378,79 +331,80 @@ Json::Value Config::defauts(struct passwd *pw, std::string setup_date,
 
 	root["php"]["buildconf"] = "--force";
 	root["php"]["configure"];
-	//root["php"]["configure"].append("--with-config-file-path=$HOME/.libhowi/etc/php");
-	root["php"]["configure"].append("--enable-fpm");
+	root["php"]["configure"]["default"];
+	//root["php"]["configure"]["default"].append("--with-config-file-path=$HOME/.libhowi/etc/php");
+	root["php"]["configure"]["default"].append("--enable-fpm");
 	string username_flag = "--with-fpm-user=" + string(pw->pw_name);
-	root["php"]["configure"].append(username_flag);
+	root["php"]["configure"]["default"].append(username_flag);
 	string groupname_flag = "--with-fpm-group=" + string(grp->gr_name);
-	root["php"]["configure"].append(groupname_flag);
-	root["php"]["configure"].append("--with-fpm-systemd");
-	root["php"]["configure"].append("--with-libdir=lib64");
-	root["php"]["configure"].append("--enable-fastcgi");
-	root["php"]["configure"].append("--enable-cgi");
-	root["php"]["configure"].append("--enable-force-cgi-redirect");
-	root["php"]["configure"].append("--enable-spl");
-	root["php"]["configure"].append("--enable-session");
-	root["php"]["configure"].append("--enable-ctype");
-	root["php"]["configure"].append("--enable-bcmath");
-	root["php"]["configure"].append("--enable-mbstring=all");
-	root["php"]["configure"].append("--enable-zip");
-	root["php"]["configure"].append("--enable-pcntl");
-	root["php"]["configure"].append("--enable-ftp");
-	root["php"]["configure"].append("--enable-exif");
-	root["php"]["configure"].append("--enable-calendar");
-	root["php"]["configure"].append("--enable-sysvmsg");
-	root["php"]["configure"].append("--enable-sysvsem");
-	root["php"]["configure"].append("--enable-sysvshm");
-	root["php"]["configure"].append("--enable-wddx");
-	root["php"]["configure"].append("--enable-gd-native-ttf");
-	root["php"]["configure"].append("--enable-gd-jis-conv");
-	root["php"]["configure"].append("--enable-fd-setsize=2048");
-	root["php"]["configure"].append("--enable-soap");
-	root["php"]["configure"].append("--enable-sockets");
-	root["php"]["configure"].append("--disable-option-checking");
-	root["php"]["configure"].append("--disable-huge-code-pages");
-	root["php"]["configure"].append("--with-curl=/usr");
-	root["php"]["configure"].append("--with-mcrypt=/usr");
-	root["php"]["configure"].append("--with-kerberos");
-	root["php"]["configure"].append("--with-iconv");
-	root["php"]["configure"].append("--with-gmp=/usr");
-	root["php"]["configure"].append("--with-pspell");
-	root["php"]["configure"].append("--with-gd");
-	root["php"]["configure"].append("--with-expat-dir=/usr");
-	root["php"]["configure"].append("--with-imap=/usr");
-	root["php"]["configure"].append("--with-imap-ssl=/usr");
-	root["php"]["configure"].append("--with-ldap=/usr");
-	root["php"]["configure"].append("--with-icu-dir=/usr");
-	root["php"]["configure"].append("--with-tidy=/usr");
-	root["php"]["configure"].append("--with-pdo_sqlite=/usr");
-	root["php"]["configure"].append("--with-sqlite3=/usr");
-	root["php"]["configure"].append("--with-libxml-dir=/usr");
-	root["php"]["configure"].append("--with-xsl=/usr");
-	root["php"]["configure"].append("--with-dom=/usr");
-	root["php"]["configure"].append("--with-xmlrpc");
-	root["php"]["configure"].append("--with-jpeg-dir=/usr");
-	root["php"]["configure"].append("--with-png-dir=/usr");
-	root["php"]["configure"].append("--with-zlib-dir=/usr");
-	root["php"]["configure"].append("--with-zlib");
-	root["php"]["configure"].append("--with-xpm-dir=/usr");
-	root["php"]["configure"].append("--with-freetype-dir=/usr");
-	root["php"]["configure"].append("--with-openssl");
-	root["php"]["configure"].append("--with-pdo-mysql=mysqlnd");
-	root["php"]["configure"].append("--with-gettext");
-	root["php"]["configure"].append("--with-mysql=mysqlnd");
-	root["php"]["configure"].append("--with-mysqli=mysqlnd");
-	root["php"]["configure"].append("--with-bz2=/usr");
-	root["php"]["configure"].append("--enable-intl");
-	root["php"]["configure"].append("--with-regex=php");
-	root["php"]["configure"].append("--with-readline=/usr");
+	root["php"]["configure"]["default"].append(groupname_flag);
+	root["php"]["configure"]["default"].append("--with-fpm-systemd");
+	root["php"]["configure"]["default"].append("--with-libdir=lib64");
+	root["php"]["configure"]["default"].append("--enable-fastcgi");
+	root["php"]["configure"]["default"].append("--enable-cgi");
+	root["php"]["configure"]["default"].append("--enable-force-cgi-redirect");
+	root["php"]["configure"]["default"].append("--enable-spl");
+	root["php"]["configure"]["default"].append("--enable-session");
+	root["php"]["configure"]["default"].append("--enable-ctype");
+	root["php"]["configure"]["default"].append("--enable-bcmath");
+	root["php"]["configure"]["default"].append("--enable-mbstring=all");
+	root["php"]["configure"]["default"].append("--enable-zip");
+	root["php"]["configure"]["default"].append("--enable-pcntl");
+	root["php"]["configure"]["default"].append("--enable-ftp");
+	root["php"]["configure"]["default"].append("--enable-exif");
+	root["php"]["configure"]["default"].append("--enable-calendar");
+	root["php"]["configure"]["default"].append("--enable-sysvmsg");
+	root["php"]["configure"]["default"].append("--enable-sysvsem");
+	root["php"]["configure"]["default"].append("--enable-sysvshm");
+	root["php"]["configure"]["default"].append("--enable-wddx");
+	root["php"]["configure"]["default"].append("--enable-gd-native-ttf");
+	root["php"]["configure"]["default"].append("--enable-gd-jis-conv");
+	root["php"]["configure"]["default"].append("--enable-fd-setsize=2048");
+	root["php"]["configure"]["default"].append("--enable-soap");
+	root["php"]["configure"]["default"].append("--enable-sockets");
+	root["php"]["configure"]["default"].append("--disable-option-checking");
+	root["php"]["configure"]["default"].append("--disable-huge-code-pages");
+	root["php"]["configure"]["default"].append("--with-curl=/usr");
+	root["php"]["configure"]["default"].append("--with-mcrypt=/usr");
+	root["php"]["configure"]["default"].append("--with-kerberos");
+	root["php"]["configure"]["default"].append("--with-iconv");
+	root["php"]["configure"]["default"].append("--with-gmp=/usr");
+	root["php"]["configure"]["default"].append("--with-pspell");
+	root["php"]["configure"]["default"].append("--with-gd");
+	root["php"]["configure"]["default"].append("--with-expat-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-imap=/usr");
+	root["php"]["configure"]["default"].append("--with-imap-ssl=/usr");
+	root["php"]["configure"]["default"].append("--with-ldap=/usr");
+	root["php"]["configure"]["default"].append("--with-icu-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-tidy=/usr");
+	root["php"]["configure"]["default"].append("--with-pdo_sqlite=/usr");
+	root["php"]["configure"]["default"].append("--with-sqlite3=/usr");
+	root["php"]["configure"]["default"].append("--with-libxml-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-xsl=/usr");
+	root["php"]["configure"]["default"].append("--with-dom=/usr");
+	root["php"]["configure"]["default"].append("--with-xmlrpc");
+	root["php"]["configure"]["default"].append("--with-jpeg-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-png-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-zlib-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-zlib");
+	root["php"]["configure"]["default"].append("--with-xpm-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-freetype-dir=/usr");
+	root["php"]["configure"]["default"].append("--with-openssl");
+	root["php"]["configure"]["default"].append("--with-pdo-mysql=mysqlnd");
+	root["php"]["configure"]["default"].append("--with-gettext");
+	root["php"]["configure"]["default"].append("--with-mysql=mysqlnd");
+	root["php"]["configure"]["default"].append("--with-mysqli=mysqlnd");
+	root["php"]["configure"]["default"].append("--with-bz2=/usr");
+	root["php"]["configure"]["default"].append("--enable-intl");
+	root["php"]["configure"]["default"].append("--with-regex=php");
+	root["php"]["configure"]["default"].append("--with-readline=/usr");
+	// root["php"]["configure"]["default"].append("--without-pear");
+	// root["php"]["configure"]["default"].append("--with-apxs2=/usr/bin/apxs");
+	// root["php"]["configure"]["default"].append("\"CFLAGS=-O2 -m64 -fPIC\"");
+	// root["php"]["configure"]["default"].append("\"CXXFLAGS=-m64\"");
+	// root["php"]["configure"]["default"].append("\"LDFLAGS=-m64\"");
+	// root["php"]["configure"]["default"].append("\"EXTRACFLAGS=-fPIC\"");
 
-	// root["php"]["configure"].append("--without-pear");
-	// root["php"]["configure"].append("--with-apxs2=/usr/bin/apxs");
-	// root["php"]["configure"].append("\"CFLAGS=-O2 -m64 -fPIC\"");
-	// root["php"]["configure"].append("\"CXXFLAGS=-m64\"");
-	// root["php"]["configure"].append("\"LDFLAGS=-m64\"");
-	// root["php"]["configure"].append("\"EXTRACFLAGS=-fPIC\"");
 	/* Setup information */
 	root["setup"]["status"] = "incomplete";
 	root["setup"]["date"] = setup_date;
@@ -724,7 +678,7 @@ Json::Value Config::defauts(struct passwd *pw, std::string setup_date,
 	file_id << root;
 	file_id.close();
 	output.ok(
-			"Created default configuration file. (~/HOWI3/etc/libhowi/php.json)");
+			"Created default configuration file. (~/.howiphp/etc/libhowi.json)");
 
 	return root;
 }

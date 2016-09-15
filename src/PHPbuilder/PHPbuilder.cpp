@@ -54,27 +54,19 @@ void PHPbuilder::buildconf()
 	output.ok("PHP buildconf is configured!");
 
 }
-void PHPbuilder::configure()
+void PHPbuilder::configure(string cfg_set)
 {
 	output.task();
-	if (!config.conf_storage["php"]["configure"].empty())
+	if (!config.conf_storage["php"]["configure"][cfg_set].empty())
 	{
 		Json::Value confflags;
-		int i = 1;
-		output.banner("Current flags of ./configure \\");
-		for (Json::ValueConstIterator itr =
-				config.conf_storage["php"]["configure"].begin();
-				itr != config.conf_storage["php"]["configure"].end(); itr++)
-		{
-			output.banner((*itr).asString() + " \\");
-			i++;
-		}
+
 		output.banner(
 				"Press Enter to delete current value, enter (y) to keep previously set value or type your new value and press Enter.");
 		cin.ignore();
 		for (Json::ValueConstIterator itr =
-				config.conf_storage["php"]["configure"].begin();
-				itr != config.conf_storage["php"]["configure"].end(); itr++)
+				config.conf_storage["php"]["configure"][cfg_set].begin();
+				itr != config.conf_storage["php"]["configure"][cfg_set].end(); itr++)
 		{
 
 			string default_val = (*itr).asString();
@@ -88,7 +80,6 @@ void PHPbuilder::configure()
 				else
 					confflags.append(input);
 			}
-			i++;
 		}
 		string input;
 		do
@@ -104,8 +95,8 @@ void PHPbuilder::configure()
 
 		} while (input != "q");
 
-		config.conf_storage["php"]["configure"] = confflags;
-		output.ok("PHP ./configure flags are configured!");
+		config.conf_storage["php"]["configure"][cfg_set] = confflags;
+		output.ok("PHP ./configure flags for configuration set "+cfg_set+" are saved!");
 	}
 	else
 	{
@@ -223,7 +214,8 @@ void PHPbuilder::install_release(string version_to_install)
 
 	run_buildconf();
 
-	run_configure();
+    // TODO Ask user which cfg_set to use
+	run_configure("default");
 
 	char type = '\0';
 	do
@@ -321,7 +313,8 @@ void PHPbuilder::install_tag(string version_to_install)
 
 	run_buildconf();
 
-	run_configure();
+    // TODO Ask user which cfg_set to use
+	run_configure("default");
 
 	char type = '\0';
 	do
@@ -573,18 +566,17 @@ void PHPbuilder::run_buildconf()
 
 	output.ok("Buildconf done!");
 }
-void PHPbuilder::run_configure()
+void PHPbuilder::run_configure(string cfg_set)
 {
 	output.task();
 	output.info("Running ./configure with flags...");
-	if (!config.conf_storage["php"]["configure"].empty())
+	if (!config.conf_storage["php"]["configure"][cfg_set].empty())
 	{
 		Json::Value confflags;
 		int i = 1;
 
 		string configure_cmd = "./configure";
 
-		/* ~/HOWI3/etc/php */
 		config_file_path = path(
 				config.conf_storage["paths"]["lib_etc_path"].asString());
 
@@ -596,8 +588,8 @@ void PHPbuilder::run_configure()
 				config_file_path.string()).append("\"");
 
 		for (Json::ValueConstIterator itr =
-				config.conf_storage["php"]["configure"].begin();
-				itr != config.conf_storage["php"]["configure"].end(); itr++)
+				config.conf_storage["php"]["configure"][cfg_set].begin();
+				itr != config.conf_storage["php"]["configure"][cfg_set].end(); itr++)
 		{
 			configure_cmd = configure_cmd + " " + (*itr).asString();
 

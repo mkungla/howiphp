@@ -32,18 +32,18 @@ Check::Check()
 bool Check::isConfigured(FlagInt flag_colors)
 {
 	output.task();
-	string filename = string(getenv("HOME")) + "/HOWI3/etc/libhowi/php.json";
+	string filename = string(getenv("HOME")) + "/.howiphp/etc/howiphp.json";
+
+	config.init(flag_colors);
+	output.info("Checking is libhowi-php configured...");
+	output.version();
+
 	if (file_exist(filename))
 	{
-		config.init(flag_colors);
-		output.version();
-		output.info("Checking is libhowi-php configured...");
 		output.ok("Libhowi-php is configured.", true);
 		return true;
 	}
 
-	output.version();
-	output.info("Checking is libhowi-php configured...");
 	output.info("libhowi-php is not configured!");
 	return false;
 }
@@ -52,30 +52,27 @@ bool Check::envpath()
 {
 	// Get User environment path var
 	string envvars = getenv("PATH");
-	size_t p = envvars.find(string(getenv("HOME")) + "/HOWI3/bin");
+	size_t p = envvars.find(string(getenv("HOME")) + "/.howiphp/bin");
 
 	/**
-	 * If first part of PATH is not /HOWI3/bin
-	 * then notify user that installed php versions
-	 * are not reachable. Also if /HOWI3/bin is set but
-	 * not in the beginning of the PATH then
-	 * case of existing global php version is used from /usr/bin
+	 * If first part of PATH is not ~/.howiphp
 	 *
-	 * PATH=$HOME/HOWI3/bin:$HOME/HOWI3/sbin:$PATH;
+	 * then notify user that installed php versions are not reachable. Also if ~/.howiphp  is set but not in
+	 * the beginning of the PATH then existing global php version would be used from /usr/bin instead intended v:
+	 *
+	 * PATH=/usr/local/bin:$PATH;
 	 * export PATH
 	 */
 	if (p == string::npos)
 	{
-
-		output.info("First path var is: " + envvars);
 		output.warning(
-				"Environment path is not set: Append export PATH=$HOME/HOWI3/bin:$HOME/HOWI3/sbin:$PATH; to your ~/.bash_profile file");
+				"Environment path is not set: Add export PATH=$HOME/.howiphp/bin:$PATH; to your ~/.profile file");
 		output.banner(
-				"so that ~/HOWI3/bin would be searched first for executables");
-		output.banner("then 'source ~/.bash_profile | log out/in'");
-
+				"so that $HOME/.howiphp/bin would be searched for active php executables");
+		output.banner("then 'source ~/.profile | log out/in'");
 		return false;
 	}
+
 	return true;
 }
 
@@ -102,18 +99,18 @@ bool Check::system()
 	if (hasWarnings())
 	{
 		output.warning(
-				"Some libhowi-php dependencies have to low version update these!",
+				"Some howiphp dependencies have to low version update these!",
 				true);
 	}
 	if (hasErrors())
 	{
 		output.error(
-				"Missing libhowi-php dependencies: Install missing dependencies before you continue!",
+				"Missing howiphp dependencies: Install missing dependencies before you continue!",
 				true);
 		return false;
 	}
 	output.info(
-			"Checking libhowi-php dependencies is done and these are all ok",
+			"Checking howiphp dependencies is done and these are all ok",
 			true);
 	return true;
 
@@ -615,7 +612,7 @@ bool Check::fastest_mirrors(FlagInt flag_with_download)
 	if (warnings)
 	{
 		output.warning(
-				"No fastest mirrors listed. run (libhowi-php check -d) do update fastest mirrors!",
+				"No fastest mirrors listed. run (howiphp check -d) do update fastest mirrors!",
 				true);
 	}
 	if (errors)
@@ -757,7 +754,7 @@ bool Check::rsync_releases()
 
 	if (!config.conf_storage.isMember("paths"))
 	{
-		output.info("Skipping releases check, libhowi-php is not configured!");
+		output.info("Skipping releases check, howiphp is not configured!");
 		return false;
 	}
 
@@ -819,7 +816,7 @@ bool Check::gitsrc()
 
 	if (!config.conf_storage.isMember("paths"))
 	{
-		output.info("Skipping releases check, libhowi-php is not configured!");
+		output.info("Skipping releases check, howiphp is not configured!");
 		return false;
 	}
 
