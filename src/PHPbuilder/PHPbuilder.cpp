@@ -483,27 +483,39 @@ void PHPbuilder::download_archive(string hostname, string download_file,
 		string proto, string download_cntry)
 {
 	output.task();
-	output.info(
-			"Downloading archive " + download_file + " from " + download_cntry
-					+ " ...");
+
 
 	if (exists(local_downloaded_file))
 	{
-		output.info("Reusing previously downloaded file!", true);
+	    output.info(local_downloaded_file.c_str(), true);
+		output.info("Reusing previously downloaded file!: ", true);
 	}
 	else
 	{
 		/* Check fastest mirrors since there is no local file*/
 		Check check;
 		check.fastest_mirrors(1);
+        output.info("Downloading archive " + download_file + " from " + download_cntry + " ...");
+        char the_archive[512];
+        sprintf(the_archive, "%s://%s/get/php-%s/from/this/mirror",
+            proto.c_str(),
+        	hostname.c_str(),
+            download_file.c_str()
+        );
+		output.info(the_archive);
 
 		char buffer[256];
 		sprintf(buffer,
-				"wget -O %s --tries=1 --timeout=2 %s://%s/get/php-%s/from/this/mirror -q --show-progress",
+				"wget -O %s --tries=1 --timeout=5 %s://%s/get/php-%s/from/this/mirror -q --show-progress",
 				local_downloaded_file.c_str(), proto.c_str(), hostname.c_str(),
 				download_file.c_str());
+
+		// What we are downloading and from where?
+		output.info(buffer, true);
+
 		FILE *p = popen(buffer, "r");
 		pclose(p);
+
 	}
 	output.ok("Download done!", true);
 
@@ -516,6 +528,12 @@ void PHPbuilder::download_tag(string hostname, string download_file,
 	output.info(
 			"Downloading TAG " + download_file + " from " + download_location
 					+ " ...");
+    char the_archive[512];
+        sprintf(the_archive, "%s://%s/get/php-%s/from/this/mirror",
+            proto.c_str(),
+        	hostname.c_str(),
+            download_file.c_str()
+    );
 
 	if (exists(local_downloaded_file))
 	{
