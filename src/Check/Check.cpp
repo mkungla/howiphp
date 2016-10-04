@@ -465,6 +465,23 @@ bool Check::fastest_mirrors(FlagInt flag_with_download)
 				char speed_message[100];
 				CDN mirror_cdn = CDN(proto, host, "ChangeLog-4.php", true);
 
+                // If mirror is failing we remove that mirror
+				if(mirror_cdn.dl_speed == "unknown")
+				{
+				    config.conf_storage["source"]["mirrors"].removeMember(host);
+				    for (Json::Value::iterator fitr = config.conf_storage["source"]["fastest-mirrors"].begin();
+                        fitr != config.conf_storage["source"]["fastest-mirrors"].end(); fitr++)
+                    {
+                       if((*fitr)["hostname"].asString() == host) {
+                    	   output.warning("Ghost fastest mirror was removed!!! (" + fitr.key().asString() + ")");
+                    	   config.conf_storage["source"]["fastest-mirrors"].removeMember(fitr.key().asString());
+                    	   output.info("You can now re run that command or re fetch fastest mirrors!");
+                    	   output.close();
+                        }
+                    }
+				    continue;
+				}
+
 				config.conf_storage["source"]["mirrors"][host]["kbs"] =
 						mirror_cdn.kbs;
 				config.conf_storage["source"]["mirrors"][host]["mbs"] =
@@ -548,8 +565,13 @@ bool Check::fastest_mirrors(FlagInt flag_with_download)
 
 				string str_hostname = (*itr)["host"].asString();
 
+                // IF host is empty don't apply
+                if(str_hostname.empty())
+                {
+                	continue;
+                }
 				string key = boost::lexical_cast<string>(itr.key().asInt() + 1);
-				;
+
 				config.conf_storage["source"]["fastest-mirrors"]["fm" + key]["ms"] =
 						config.conf_storage["source"]["mirrors"][str_hostname]["ms"].asString();
 				config.conf_storage["source"]["fastest-mirrors"]["fm" + key]["sec"] =
@@ -569,6 +591,7 @@ bool Check::fastest_mirrors(FlagInt flag_with_download)
 					"Can not choose fastest mirror if there is no source mirrors!",
 					true);
 		}
+
 	}
 
 	char cid[5];
