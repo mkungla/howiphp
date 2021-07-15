@@ -1,8 +1,8 @@
 /*
  * ******************************************************************
  * Created by   Marko Kungla on 2010
- * Updated by   Marko Kungla @ Okram Labs on Aug 6, 2016 - 6:09:39 PM
- * Contact      okramlabs@gmail.com - https://okramlabs.com
+ * Updated by   Marko Kungla on Aug 6, 2016 - 6:09:39 PM
+ *
  * @copyright   2010 - 2016 Marko Kungla - https://github.com/mkungla
  * @license     MIT
  *
@@ -11,7 +11,7 @@
  * @package        howiphp
  *
  * File         Check.cpp
- * @link        https://github.com/okramlabs/howiphp
+ * @link        https://github.com/mkungla/howiphp
  * ********************************************************************
  * Comments:
  * *******************************************************************/
@@ -66,10 +66,10 @@ bool Check::envpath()
 	if (p == string::npos)
 	{
 		output.warning(
-				"Environment path is not set: Add export PATH=$HOME/.howiphp/bin:$PATH; to your ~/.profile file");
+				"Environment path is not set: Add export PATH=$HOME/.howiphp/bin:$PATH; to your ~/.bashrc file");
 		output.banner(
 				"so that $HOME/.howiphp/bin would be searched for active php executables");
-		output.banner("then 'source ~/.profile | log out/in'");
+		output.banner("then 'source ~/.bashrc | log out/in'");
 		return false;
 	}
 

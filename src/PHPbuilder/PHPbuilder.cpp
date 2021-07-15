@@ -1,8 +1,8 @@
 /*
  * ******************************************************************
  * Created by   Marko Kungla on 2010
- * Updated by   Marko Kungla @ Okram Labs on Aug 6, 2016 - 6:18:46 PM
- * Contact      okramlabs@gmail.com - https://okramlabs.com
+ * Updated by   Marko Kungla on Aug 6, 2016 - 6:18:46 PM
+ *
  * @copyright   2010 - 2016 Marko Kungla - https://github.com/mkungla
  * @license     MIT
  *
@@ -11,7 +11,7 @@
  * @package        howiphp
  *
  * File         PHPbuilder.cpp
- * @link        https://github.com/okramlabs/howiphp
+ * @link        https://github.com/mkungla/howiphp
  * ********************************************************************
  * Comments:
  * *******************************************************************/
@@ -400,7 +400,7 @@ void PHPbuilder::cleanup()
 void PHPbuilder::check_php_ini()
 {
 	output.task();
-	output.info("Checking php.ini files at ~/HOWI3/etc");
+	output.info("Checking php.ini files at ~/.howiphp/etc");
 	/* TODO Could also check existing php ini file for configuration options  */
 
 	// php.ini files provided by current instalation
@@ -419,7 +419,7 @@ void PHPbuilder::check_php_ini()
 	if (!exists(local_phpini_production) && exists(inst_phpini_production))
 	{
 		copy(inst_phpini_production, local_phpini_production);
-		output.ok("Copied php.ini-production to ~/HOWI3/etc/php.ini-production",
+		output.ok("Copied php.ini-production to ~/.howiphp/etc/php.ini-production",
 				true);
 		updated_phpini = true;
 	}
@@ -428,7 +428,7 @@ void PHPbuilder::check_php_ini()
 	{
 		copy(inst_phpini_development, local_phpini_development);
 		output.ok(
-				"Copied php.ini-development to ~/HOWI3/etc/php.ini-development",
+				"Copied php.ini-development to ~/.howiphp/etc/php.ini-development",
 				true);
 		updated_phpini = true;
 	}
@@ -436,14 +436,14 @@ void PHPbuilder::check_php_ini()
 	if (!exists(local_phpini) && exists(local_phpini_development))
 	{
 		copy(local_phpini_development, local_phpini);
-		output.ok("Copied php.ini-development to ~/HOWI3/etc/php.ini", true);
+		output.ok("Copied php.ini-development to ~/.howiphp/etc/php.ini", true);
 		updated_phpini = true;
 	}
 	if (!updated_phpini)
 	{
-		output.info("You already have php.ini files at ~/HOWI3/etc", true);
+		output.info("You already have php.ini files at ~/.howiphp/etc", true);
 	}
-	output.ok("PHP ini files ok check ~/HOWI3/etc to modify", true);
+	output.ok("PHP ini files ok check ~/.howiphp/etc to modify", true);
 }
 void PHPbuilder::prepare(string version_to_install)
 {
@@ -494,21 +494,18 @@ void PHPbuilder::download_archive(string hostname, string download_file,
 	{
 		/* Check fastest mirrors since there is no local file*/
 		Check check;
-		check.fastest_mirrors(1);
-        output.info("Downloading archive " + download_file + " from " + download_cntry + " ...");
-        char the_archive[512];
-        sprintf(the_archive, "%s://%s/get/php-%s/from/this/mirror",
-            proto.c_str(),
-        	hostname.c_str(),
-            download_file.c_str()
-        );
+		// check.fastest_mirrors(1);
+    output.info("Downloading archive " + download_file + " from " + download_cntry + " ...");
+    char the_archive[512];
+    sprintf(the_archive, "https://www.php.net/distributions/php-%s",
+      download_file.c_str()
+    );
 		output.info(the_archive);
 
 		char buffer[256];
 		sprintf(buffer,
-				"wget -O %s --tries=1 --timeout=5 %s://%s/get/php-%s/from/this/mirror -q --show-progress",
-				local_downloaded_file.c_str(), proto.c_str(), hostname.c_str(),
-				download_file.c_str());
+				"wget -O %s --tries=1 --timeout=5 https://www.php.net/distributions/php-%s -q --show-progress",
+				local_downloaded_file.c_str(), download_file.c_str());
 
 		// What we are downloading and from where?
 		output.info(buffer, true);
