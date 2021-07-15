@@ -1,8 +1,8 @@
 /*
  * ******************************************************************
  * Created by   Marko Kungla on 2010
- * Updated by   Marko Kungla @ Okram Labs on Aug 6, 2016 - 6:14:55 PM
- * Contact      okramlabs@gmail.com - https://okramlabs.com
+ * Updated by   Marko Kungla on Aug 6, 2016 - 6:14:55 PM
+ *
  * @copyright   2010 - 2016 Marko Kungla - https://github.com/mkungla
  * @license     MIT
  *
@@ -11,7 +11,7 @@
  * @package        howiphp
  *
  * File         Dependencies.cpp
- * @link        https://github.com/okramlabs/howiphp
+ * @link        https://github.com/mkungla/howiphp
  * ********************************************************************
  * Comments:
  * *******************************************************************/
@@ -192,10 +192,14 @@ Json::Value Dependencies::compiler()
 	compiler_deps[5]["required"] = true;
 	compiler_deps[5]["required_by"] = "compiler";
 
+  /**
+   * glibc-headers is merged to glibc-devel see:
+   * https://fedoraproject.org/wiki/Changes/RemoveGlibcHeaders
+   */
 	compiler_deps[6]["dependeny"] = "glibc-headers";
 	compiler_deps[6]["minversion"] = "2.22";
 	compiler_deps[6]["dnf_pkg"] = "glibc-headers";
-	compiler_deps[6]["required"] = true;
+	compiler_deps[6]["required"] = false;
 	compiler_deps[6]["required_by"] = "compiler";
 
 	compiler_deps[7]["dependeny"] = "glibc-common";
@@ -365,7 +369,7 @@ Json::Value Dependencies::optional()
 	optional[16]["dependeny"] = "sqlite-devel";
 	optional[16]["minversion"] = "3.9";
 	optional[16]["dnf_pkg"] = "sqlite-devel";
-	optional[16]["required"] = false;
+	optional[16]["required"] = true;
 	optional[16]["required_by"] = "(--with-sqlite3) ";
 
 	optional[17]["dependeny"] = "bzip2-devel";
@@ -479,7 +483,7 @@ Json::Value Dependencies::optional()
 	optional[35]["dependeny"] = "aspell-devel";
 	optional[35]["minversion"] = "0.60";
 	optional[35]["dnf_pkg"] = "aspell-devel";
-	optional[35]["required"] = false;
+	optional[35]["required"] = true;
 	optional[35]["required_by"] = "(--with-pspell)";
 
 	optional[36]["dependeny"] = "aspell";
@@ -491,7 +495,7 @@ Json::Value Dependencies::optional()
 	optional[37]["dependeny"] = "readline-devel";
 	optional[37]["minversion"] = "6.3";
 	optional[37]["dnf_pkg"] = "readline-devel";
-	optional[37]["required"] = false;
+	optional[37]["required"] = true;
 	optional[37]["required_by"] = "(--with-readline=/usr)";
 
 	optional[38]["dependeny"] = "ncurses-devel";
@@ -503,7 +507,7 @@ Json::Value Dependencies::optional()
 	optional[39]["dependeny"] = "libtidy-devel";
 	optional[39]["minversion"] = "0.99";
 	optional[39]["dnf_pkg"] = "libtidy-devel";
-	optional[39]["required"] = false;
+	optional[39]["required"] = true;
 	optional[39]["required_by"] = "(--with-tidy=/usr)";
 
 	optional[40]["dependeny"] = "libtidy";
@@ -551,12 +555,12 @@ Json::Value Dependencies::optional()
 	optional[47]["dependeny"] = "libxslt-devel";
 	optional[47]["minversion"] = "1.1";
 	optional[47]["dnf_pkg"] = "libxslt-devel";
-	optional[47]["required"] = false;
+	optional[47]["required"] = true;
 	optional[47]["required_by"] = "";
 
 	optional[48]["dependeny"] = "pkgconfig";
 	optional[48]["minversion"] = "0";
-	optional[48]["dnf_pkg"] = "pkgconfig";
+	optional[48]["dnf_pkg"] = "pkgconf-pkg-config";
 	optional[48]["required"] = false;
 	optional[48]["required_by"] = "";
 
