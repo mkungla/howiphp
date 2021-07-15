@@ -1,8 +1,8 @@
 /*
  * ******************************************************************
  * Created by   Marko Kungla on 2010
- * Updated by   Marko Kungla @ Okram Labs on Aug 6, 2016 - 6:17:00 PM
- * Contact      okramlabs@gmail.com - https://okramlabs.com
+ * Updated by   Marko Kungla on Aug 6, 2016 - 6:17:00 PM
+ *
  * @copyright   2010 - 2016 Marko Kungla - https://github.com/mkungla
  * @license     MIT
  *
@@ -11,7 +11,7 @@
  * @package        howiphp
  *
  * File         List.cpp
- * @link        https://github.com/okramlabs/howiphp
+ * @link        https://github.com/mkungla/howiphp
  * ********************************************************************
  * Comments:
  * *******************************************************************/

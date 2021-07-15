@@ -1,8 +1,8 @@
 /*
  * ******************************************************************
  * Created by   Marko Kungla on 2010
- * Updated by   Marko Kungla @ Okram Labs on Aug 6, 2016 - 6:20:40 PM
- * Contact      okramlabs@gmail.com - https://okramlabs.com
+ * Updated by   Marko Kungla on Aug 6, 2016 - 6:20:40 PM
+ *
  * @copyright   2010 - 2016 Marko Kungla - https://github.com/mkungla
  * @license     MIT
  *
@@ -11,7 +11,7 @@
  * @package        howiphp
  *
  * File         UseVersion.cpp
- * @link        https://github.com/okramlabs/howiphp
+ * @link        https://github.com/mkungla/howiphp
  * ********************************************************************
  * Comments:
  * *******************************************************************/
@@ -63,8 +63,7 @@ void UseVersion::load(string version_to_switch)
 			output.ok("Switched to php versions: " + version_to_switch, true);
 		}
 		else
-			output.error(
-					"Seems that your php installation is corrupted or you found a bug!");
+			output.error(installation_path.string());
 
 		output.close();
 	}

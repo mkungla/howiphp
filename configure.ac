@@ -1,12 +1,12 @@
 AC_PREREQ([2.69])
 AC_COPYRIGHT([Copyright (c) 2010 - 2016 Marko Kungla - License (MIT)])
 
-AC_INIT([howiphp], [3.1.2], [https://github.com/okramlabs/howiphp/issues], [], [https://github.com/okramlabs/howiphp])
+AC_INIT([howiphp], [3.1.2], [https://github.com/mkungla/howiphp/issues], [], [https://github.com/mkungla/howiphp])
 
-AC_DEFINE([HOWIPHP_VENDOR], ["Okram Labs"], [Set package vendor string])
-AC_DEFINE([HOWIPHP_VENDOR_SITE], ["https://okramlabs.com"], [Set package vendor website])
+AC_DEFINE([HOWIPHP_VENDOR], [""], [Set package vendor string])
+AC_DEFINE([HOWIPHP_VENDOR_SITE], ["https://github.com/mkungla"], [Set package vendor website])
 AC_DEFINE([HOWIPHP_LICENSE], ["MIT"], [Set package license])
-AC_DEFINE([HOWIPHP_COPY], ["2010 - 2016"], [Set package copy year])
+AC_DEFINE([HOWIPHP_COPY], ["2010"], [Set package copy year])
 AC_DEFINE([HOWIPHP_AUTHOR], ["Marko Kungla"], [Set package author])
 
 AC_PREFIX_PROGRAM
